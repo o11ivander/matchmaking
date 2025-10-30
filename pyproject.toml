@@ -1,0 +1,57 @@
+[build-system]
+requires = ["setuptools", "wheel"]
+build-backend = "setuptools.build_meta"
+
+# pyproject.toml
+[tool.pytest.ini_options]
+minversion = "6.0"
+addopts = "--failed-first"
+
+[tool.ruff.lint]
+select = [
+    # https://docs.astral.sh/ruff/rules
+    # pycodestyle
+    "E",
+    # Pyflakes
+    "F",
+    # pyupgrade
+    "UP",
+    # flake8-bugbear
+    "B",
+    # flake8-simplify
+    "SIM",
+    # isort
+    "I",
+    # McCabe complexity
+    "C90",
+    # bandit
+    # "S",
+    # flake8-builtins
+    "A",
+    # flake8-commas
+    "COM",
+    # flake8-comprehensions
+    "C4",
+    # flake8-datetimez
+    "DTZ",
+    # flake8-errmsg
+    "EM",
+    # flake8-pytest-style
+    "PT",
+    # flake8-return
+    "RET",
+    # Ruff-specific rules
+    "RUF",
+    # Pylint
+    "PL",
+    # Perflint
+    "PERF",
+    # flake8-use-pathlib
+    "PTH",
+    # flake8-unused-arguments
+    "ARG",
+]
+ignore = ["E501", "RUF003", "RET503", "COM812"]
+
+[tool.ruff.format]
+quote-style = "double"
