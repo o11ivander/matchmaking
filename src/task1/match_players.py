@@ -125,4 +125,5 @@ def split_match_to_teams(
 
     team1 = [players[i] for i in best_idx]
     team2 = [players[j] for j in range(12) if j not in best_idx]
+
     return [team1, team2]
