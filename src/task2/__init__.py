@@ -1,1 +1,1 @@
-from .match_players import make_matches_with_squads
+from .match_players import form_matches_squads

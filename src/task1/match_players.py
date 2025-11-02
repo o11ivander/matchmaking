@@ -38,8 +38,14 @@ from schema import Player
 
 
 def prepare_stats(sorted_players: list[Player]) -> list[int]:
+    '''
+    Prepare stats for window of Players(window len 12 - cnt players in one match) like diff between min and max skill;
+
+    :param sorted_players:
+    :return: list[int]
+    '''
     cnt_players = len(sorted_players)
-    skills_diffs_in_match = []
+    skills_diffs_in_match: list[int] = []
 
     for i in range(0, cnt_players - MATCH_PLAYERS + 1):
         propose_match_team = sorted_players[i : i + MATCH_PLAYERS]
@@ -52,11 +58,19 @@ def prepare_stats(sorted_players: list[Player]) -> list[int]:
 
 
 def div_players_by_match(
-    sorted_players: list[Player], indxs_players: list[int]
+    sorted_players: list[Player], ind_players: list[int]
 ) -> tuple[list[list[Player]], list[Player]]:
-    matches = []
-    used_ids = set()
-    for start_ind in indxs_players:
+    '''
+    Divide players byt match in list with 12 Player in each other and list with PLayers without match.
+
+    :param sorted_players:
+    :param ind_players:
+    :return: tuple[list[list[Player]], list[Player]]
+    '''
+
+    matches: list[list[Player]] = []
+    used_ids: set[str] = set()
+    for start_ind in ind_players:
         match_players = sorted_players[start_ind : start_ind + MATCH_PLAYERS]
         matches.append(match_players)
         used_ids.update(player.id for player in match_players)
@@ -68,16 +82,46 @@ def div_players_by_match(
     return matches, players_without_matches
 
 
-def form_matches(players: list[Player]) -> tuple[list[list[Player]], list[Player]]:
+def split_match_to_teams(players_in_one_match: list[Player]) -> tuple[list[Player], list[Player]]:
+    '''
+    DIvide players in one match(12 players) in two teams(1 and 2). This is done by trying out combinations and
+    choose best by diff between sum skills.
 
-    cnt_players = len(players)
+    :param players:
+    :return: list[Player], list[Player]
+    '''
 
-    if cnt_players < MATCH_PLAYERS:
-        return []
+    skills = [player.skill for player in players_in_one_match]
+    total = sum(skills)
 
-    sorted_players = sorted(players, key=lambda player: player.skill)
+    best_delta = None
+    best_idx = None
 
+    for ind in combinations(range(12), 6):
+        sum_first_team = sum(skills[i] for i in ind)
+        delta = abs(total - 2 * sum_first_team)
+        if best_delta is None or delta < best_delta:
+            best_delta = delta
+            best_idx = ind
+
+    team1 = [players_in_one_match[i] for i in best_idx]
+    team2 = [players_in_one_match[j] for j in range(12) if j not in best_idx]
+
+    return team1, team2
+
+
+def form_raw_matches(
+    sorted_players: list[Player],
+):
+    '''
+    Divide all players to raw matches - 12 players without teams. This done with optimize match stat(diff between min
+    and max) by tree decide.
+
+    :param sorted_players:
+    :return:
+    '''
     skills_diffs_in_match = prepare_stats(sorted_players)
+    cnt_players = len(sorted_players)
 
     @lru_cache
     def optimize(i: int) -> tuple:
@@ -91,37 +135,38 @@ def form_matches(players: list[Player]) -> tuple[list[list[Player]], list[Player
         take_state = (take_cnt + 1, take_diff + skill_diff_i, (i,) + take_indx_starts)
 
         if take_state[0] > best_cnt or (
-            take_state[0] == best_cnt and take_state[1] < best_diff_between_min_max
+                take_state[0] == best_cnt and take_state[1] < best_diff_between_min_max
         ):
             return take_state
 
         return (best_cnt, best_diff_between_min_max, best_indx_match_start)
 
     total_count, _, starts = optimize(0)
-
     if total_count == 0:
-        return []
+        return [], []
 
     matches, players_without_matches = div_players_by_match(sorted_players, starts)
 
     return matches, players_without_matches
 
+def form_matches(players: list[Player]) -> tuple[list[tuple[list[Player], list[Player]]], list[Player]]:
+    '''
+    Main function that combine algorithm:
+    - sort players by skill
+    - form match
+    - divide players in match to teams
 
-def split_match_to_teams(players: list[Player]) -> list[list[Player]]:
-    skills = [player.skill for player in players]
-    total = sum(skills)
+    :param players:
+    :return: tuple - [list of matches -> [tuple of twe teams -> list[PLayers], list[PLayers]], list[Players] without matches]
+    '''
+    cnt_players = len(players)
 
-    best_delta = None
-    best_idx = None
+    if cnt_players < MATCH_PLAYERS:
+        return [], []
 
-    for indxs in combinations(range(12), 6):
-        sum_first_team = sum(skills[i] for i in indxs)
-        delta = abs(total - 2 * sum_first_team)
-        if best_delta is None or delta < best_delta:
-            best_delta = delta
-            best_idx = indxs
+    sorted_players = sorted(players, key=lambda player: player.skill)
+    matches, leftovers_players = form_raw_matches(sorted_players)
 
-    team1 = [players[i] for i in best_idx]
-    team2 = [players[j] for j in range(12) if j not in best_idx]
+    matches_with_teams = [split_match_to_teams(match) for match in matches]
 
-    return [team1, team2]
+    return matches_with_teams, leftovers_players
