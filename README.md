@@ -53,8 +53,9 @@ focusing on scalability, reliability, and event-driven architecture rather than 
 ### Task1 and Task2
 
 The code is in the ```./src``` folder.<br>
-Run:
-1)Install requirements
+Run:<br>
+
+1) Install requirements
 ```bash
 pip install -r requirements.txt
 ```
