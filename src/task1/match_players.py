@@ -107,9 +107,7 @@ def form_matches(players: list[Player]) -> tuple[list[list[Player]], list[Player
     return matches, players_without_matches
 
 
-def split_match_to_teams(
-    players: list[Player]
-) -> list[list[Player]]:
+def split_match_to_teams(players: list[Player]) -> list[list[Player]]:
     skills = [player.skill for player in players]
     total = sum(skills)
 

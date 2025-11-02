@@ -1,4 +1,4 @@
-players = [
+players_first = [
     {"id": "u1", "skill": 2},
     {"id": "u2", "skill": 2},
     {"id": "u3", "skill": 2},
@@ -25,4 +25,33 @@ players = [
     {"id": "ua11", "skill": 4},
     {"id": "ua12", "skill": 2},
     {"id": "ua13", "skill": 4},
+]
+
+players_second = [
+    {"id": "u1", "skill": 2, "squad_id": -1},
+    {"id": "u2", "skill": 2, "squad_id": 3},
+    {"id": "u3", "skill": 2, "squad_id": 4},
+    {"id": "u4", "skill": 1, "squad_id": 3},
+    {"id": "u5", "skill": 2, "squad_id": 4},
+    {"id": "u6", "skill": 2, "squad_id": 3},
+    {"id": "u7", "skill": 2, "squad_id": 4},
+    {"id": "u8", "skill": 2, "squad_id": 4},
+    {"id": "u9", "skill": 2, "squad_id": 5},
+    {"id": "u10", "skill": 2, "squad_id": -1},
+    {"id": "u11", "skill": 2, "squad_id": -1},
+    {"id": "u12", "skill": 2, "squad_id": 5},
+    {"id": "u13", "skill": 2, "squad_id": -1},
+    {"id": "u1a", "skill": 5, "squad_id": -1},
+    {"id": "u2a", "skill": 2, "squad_id": 5},
+    {"id": "u3a", "skill": 2, "squad_id": -1},
+    {"id": "ua4", "skill": 2, "squad_id": 5},
+    {"id": "ua5", "skill": 2, "squad_id": -1},
+    {"id": "ua6", "skill": 2, "squad_id": -1},
+    {"id": "ua7", "skill": 2, "squad_id": -1},
+    {"id": "ua8", "skill": 2, "squad_id": -1},
+    {"id": "ua9", "skill": 2, "squad_id": -1},
+    {"id": "ua10", "skill": 2, "squad_id": -1},
+    {"id": "ua11", "skill": 4, "squad_id": 5},
+    {"id": "ua12", "skill": 2, "squad_id": -1},
+    {"id": "ua13", "skill": 4, "squad_id": -1},
 ]
