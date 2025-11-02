@@ -1,5 +1,5 @@
-## PART A
-### SERVICE DESIGN
+# PART A
+## SERVICE DESIGN
 
 #### Short Description 
 In my opinion, this should be a separate system that subscribes to the necessary topics as a consumer group
@@ -25,7 +25,7 @@ When a match is successfully created, the users who were matched are removed fro
 and a match.found event is published back to the message bus so that other services
 (for example, the notifier or game server allocator) can process it.
 
-#### Main Components
+### Main Components
 
 <b>Matchmaking API</b> – receives requests from the game client and publishes events to the message bus.
 
@@ -45,3 +45,50 @@ and periodically checks these slots to form matches. When a match is successfull
 event is published back to the bus so the client can join the assigned match. If a player cancels the search 
 (matchmaking.user_cancel) or times out, the service removes them from Redis automatically.
 
+## Code
+In this assignment, I described the algorithms that could be used to split players into matches and teams from a 
+computational perspective. However, for a real-world service, I would likely choose a different approach,
+focusing on scalability, reliability, and event-driven architecture rather than purely algorithmic optimization.
+
+### Task3
+To reduce player waiting time and improve overall matchmaking flexibility, several additional improvements could be implemented:
+<ol>
+    <li><b>Fixed skill slots:</b><br>
+        The system can define clear skill-based ranges (for example, 1–50, 51–100, 101–150, etc.) and perform matchmaking only within those ranges.
+        This approach reduces unnecessary comparisons between players of very different skill levels and speeds up search operations inside each slot.
+        Each slot can be processed by a separate worker, which also improves scalability and parallelism.
+    </li>
+    <li>
+        <b>Variable team size:</b><br>
+        Allowing flexible team sizes (for example, switching from 6v6 to 5v5 or 4v4) helps form matches faster when the queue is small.
+        The system can dynamically adjust team size based on queue depth, ensuring that players spend less time waiting while still maintaining balanced matches.
+    </li>
+    <li>
+        <b>Mixed-skill matches:</b><br>
+        To keep low-skilled players active during low-population hours, the system could occasionally create “mixed” matches, where lower- and higher-skilled players are placed together.
+        The matchmaker can still balance total team skill averages so that both sides remain fair overall, even if individual players have different levels.
+    </li>
+    <li>
+        <b>Regional balancing:</b><br>
+        Players can be distributed across multiple nearby regions based on latency and server load.
+        For example, if the European queue is saturated while East servers are idle, some players with acceptable ping could be redirected there.
+        This reduces queue time and keeps the global player pool evenly utilized.
+    </li>
+</ol>
+
+## Part B
+<ol>
+    <li>
+        How long did it take you to complete this test?<br>
+        Around 8–10 hours in total, including algorithm design, architecture description, and documentation.
+    </li>
+    <li>
+        Remarks and suggestions?<br>
+        In my opinion, there was some uncertainty about what exactly was expected in the software part — whether it should be a fully working application or primarily an algorithmic solution.
+        It would be helpful to better understand what specific skills were being assessed, so the implementation could be aligned accordingly.
+        Overall, the task was interesting and open-ended, leaving room for different interpretations and design choices.
+        Because of that, I approached the design part more from a system architecture and integration perspective,
+        while treating the software part as an algorithmic challenge — something rarely encountered in practical,
+        production-oriented tasks.
+    </li>
+</ol>
