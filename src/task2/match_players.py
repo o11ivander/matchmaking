@@ -21,6 +21,12 @@ from schema import Player, Squad
 
 
 def group_to_squads(players: list[Player]) -> list[Squad]:
+    '''
+    Combine players in squad - players with one squad_id.
+
+    :param players:
+    :return: squads
+    '''
     buckets: dict[int, list[Player]] = {}
     for player in players:
         key = f"-{player.id}" if player.squad_id == -1 else player.squad_id
@@ -41,11 +47,27 @@ def group_to_squads(players: list[Player]) -> list[Squad]:
     return squads
 
 
-def squad_key(s: Squad) -> tuple:
-    return ("solo", s.players[0].id) if s.id == -1 else ("squad", s.id)
+def squad_key(squad: Squad) -> tuple:
+    '''
+    Create squad unique key(player id) for solo players(squad_id = -1) and for "group" players - squad id
+
+     :param players:
+     :return: squads
+     '''
+    return ("solo", squad.players[0].id) if squad.id == -1 else ("squad", squad.id)
 
 
 def enumerate_candidate_windows_once(squads_sorted: list[Squad]) -> list[tuple]:
+    '''
+     This function scans through the sorted list of Squads (by avg_skill) using a sliding window approach:
+    - Expands the window (right pointer) until the total player count >= MATCH_PLAYERS.
+    - Shrinks from the left if the count exceeds MATCH_PLAYERS.
+    - When exactly MATCH_PLAYERS are reached, saves the window boundaries
+      and the skill range (max(avg_skill) - min(avg_skill)).
+
+    :param squads_sorted:
+    :return:
+    '''
     len_squads = len(squads_sorted)
     prop_stats_matches = []
     left_pointer = 0
@@ -68,12 +90,25 @@ def enumerate_candidate_windows_once(squads_sorted: list[Squad]) -> list[tuple]:
 
 
 def sum_skill(squad: Squad) -> int | None:
+    '''
+    Sum of player's skills in one squad/
+    :param squad:
+    :return:
+    '''
     return sum(player.skill for player in squad.players)
 
 
 def split_two_teams_by_squads(
     squads: list[Squad],
 ) -> tuple[list[Player], list[Player], int]:
+    '''
+    Uses dynamic programming (subset-sum style) to select the best subset of Squads that fills exactly
+    slots(6 players) and minimizes the difference in total skill between the two teams.
+
+    :param squads:
+    :return:
+    '''
+
     squad_stats = [(s.cnt_players, sum_skill(s)) for s in squads]
 
     summ_skill = sum(skill for _, skill in squad_stats)
@@ -106,10 +141,21 @@ def split_two_teams_by_squads(
     return team1, team2, delta
 
 
-def make_matches_with_squads(
+def form_matches_squads(
     players: list[Player],
 ) -> tuple[list[tuple[list[Player], list[Player]]], list[Player]]:
+    '''
+    Main function that combine algorithm:
+      - group players into squads;
+      - sort squads by avg_skill;
+      - find all squad windows mathc(cnt_players == 12);
+      - for each window, try to divide match into two balanced teams(6 players in one);
+      - add successful matches to the result list, removing used squads to prevent overlap;
+      - repeat until no valid window remains;
 
+    :param players:
+    :return: tuple - [list of matches -> [tuple of twe teams -> list[PLayers], list[PLayers]], list[Players] without matches]
+    '''
     squads = group_to_squads(players)
 
     for squad in squads:
