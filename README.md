@@ -50,6 +50,20 @@ In this assignment, I described the algorithms that could be used to split playe
 computational perspective. However, for a real-world service, I would likely choose a different approach,
 focusing on scalability, reliability, and event-driven architecture rather than purely algorithmic optimization.
 
+### Task1 and Task2
+
+The code is in the ```./src``` folder.<br>
+Run:
+1)Install requirements
+```bash
+pip install -r requirements.txt
+```
+2) Run code:
+```bash
+python src/main.py
+```
+3) In ```./stc/data.py``` - file with data for test run.
+
 ### Task3
 To reduce player waiting time and improve overall matchmaking flexibility, several additional improvements could be implemented:
 <ol>

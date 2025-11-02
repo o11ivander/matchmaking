@@ -38,12 +38,12 @@ from schema import Player
 
 
 def prepare_stats(sorted_players: list[Player]) -> list[int]:
-    '''
+    """
     Prepare stats for window of Players(window len 12 - cnt players in one match) like diff between min and max skill;
 
     :param sorted_players:
     :return: list[int]
-    '''
+    """
     cnt_players = len(sorted_players)
     skills_diffs_in_match: list[int] = []
 
@@ -60,13 +60,13 @@ def prepare_stats(sorted_players: list[Player]) -> list[int]:
 def div_players_by_match(
     sorted_players: list[Player], ind_players: list[int]
 ) -> tuple[list[list[Player]], list[Player]]:
-    '''
+    """
     Divide players byt match in list with 12 Player in each other and list with PLayers without match.
 
     :param sorted_players:
     :param ind_players:
     :return: tuple[list[list[Player]], list[Player]]
-    '''
+    """
 
     matches: list[list[Player]] = []
     used_ids: set[str] = set()
@@ -82,14 +82,16 @@ def div_players_by_match(
     return matches, players_without_matches
 
 
-def split_match_to_teams(players_in_one_match: list[Player]) -> tuple[list[Player], list[Player]]:
-    '''
+def split_match_to_teams(
+    players_in_one_match: list[Player],
+) -> tuple[list[Player], list[Player]]:
+    """
     DIvide players in one match(12 players) in two teams(1 and 2). This is done by trying out combinations and
     choose best by diff between sum skills.
 
     :param players:
     :return: list[Player], list[Player]
-    '''
+    """
 
     skills = [player.skill for player in players_in_one_match]
     total = sum(skills)
@@ -113,13 +115,13 @@ def split_match_to_teams(players_in_one_match: list[Player]) -> tuple[list[Playe
 def form_raw_matches(
     sorted_players: list[Player],
 ):
-    '''
+    """
     Divide all players to raw matches - 12 players without teams. This done with optimize match stat(diff between min
     and max) by tree decide.
 
     :param sorted_players:
     :return:
-    '''
+    """
     skills_diffs_in_match = prepare_stats(sorted_players)
     cnt_players = len(sorted_players)
 
@@ -135,7 +137,7 @@ def form_raw_matches(
         take_state = (take_cnt + 1, take_diff + skill_diff_i, (i,) + take_indx_starts)
 
         if take_state[0] > best_cnt or (
-                take_state[0] == best_cnt and take_state[1] < best_diff_between_min_max
+            take_state[0] == best_cnt and take_state[1] < best_diff_between_min_max
         ):
             return take_state
 
@@ -149,8 +151,11 @@ def form_raw_matches(
 
     return matches, players_without_matches
 
-def form_matches(players: list[Player]) -> tuple[list[tuple[list[Player], list[Player]]], list[Player]]:
-    '''
+
+def form_matches(
+    players: list[Player],
+) -> tuple[list[tuple[list[Player], list[Player]]], list[Player]]:
+    """
     Main function that combine algorithm:
     - sort players by skill
     - form match
@@ -158,7 +163,7 @@ def form_matches(players: list[Player]) -> tuple[list[tuple[list[Player], list[P
 
     :param players:
     :return: tuple - [list of matches -> [tuple of twe teams -> list[PLayers], list[PLayers]], list[Players] without matches]
-    '''
+    """
     cnt_players = len(players)
 
     if cnt_players < MATCH_PLAYERS:
