@@ -18,6 +18,7 @@ Modify the previous code.
 
 from config import CNT_TEAM_PLAYERS, MATCH_PLAYERS
 from schema import Player, Squad
+from sortedcontainers import SortedList
 
 
 def group_to_squads(players: list[Player]) -> list[Squad]:
@@ -46,6 +47,8 @@ def group_to_squads(players: list[Player]) -> list[Squad]:
         )
     return squads
 
+def init_squad_tree(squads) -> SortedList:
+    return SortedList(squads, key=lambda s: s.avg_skill)
 
 def squad_key(squad: Squad) -> tuple:
     """
@@ -57,7 +60,7 @@ def squad_key(squad: Squad) -> tuple:
     return ("solo", squad.players[0].id) if squad.id == -1 else ("squad", squad.id)
 
 
-def enumerate_candidate_windows_once(squads_sorted: list[Squad]) -> list[tuple]:
+def enumerate_candidate_windows_once(squads_sorted: SortedList[Squad]) -> list[tuple]:
     """
      This function scans through the sorted list of Squads (by avg_skill) using a sliding window approach:
     - Expands the window (right pointer) until the total player count >= MATCH_PLAYERS.
@@ -158,35 +161,40 @@ def form_matches_squads(
     """
     squads = group_to_squads(players)
 
-    for squad in squads:
+    # Update -> with sorted(tree)
+    squads_tree = init_squad_tree(squads)
+
+    for squad in squads_tree:
         if squad.cnt_players > CNT_TEAM_PLAYERS:
             raise ValueError(f"Squad {squad.id} players more than {CNT_TEAM_PLAYERS}")
 
     matches: list[tuple[list[Player], list[Player]]] = []
 
     while True:
-        squads_sorted = sorted(squads, key=lambda s: s.avg_skill)
-
-        candidates = enumerate_candidate_windows_once(squads_sorted)
+        candidates = enumerate_candidate_windows_once(squads_tree)
         if not candidates:
             break
-
         taken = False
         for left_pointer, right_pointer, diff_skill in candidates:
-            window = squads_sorted[left_pointer : right_pointer + 1]
+            window = squads_tree[left_pointer : right_pointer + 1]
             try:
                 team1, team2, team_delta = split_two_teams_by_squads(window)
             except ValueError:
                 continue
 
             matches.append((team1, team2))
-            window_keys = {squad_key(squad) for squad in window}
-            squads = [squad for squad in squads if squad_key(squad) not in window_keys]
+
+            used_keys = {squad_key(squad) for squad in window}
+
+            #Update -> with delete[O(log n)]
+            for i in range(right_pointer, left_pointer - 1, -1):
+                squad = squads_tree[i]
+                if squad_key(squad) in used_keys:
+                    squads_tree.pop(i)
             taken = True
             break
 
         if not taken:
             break
 
-    leftovers = [player for squad in squads for player in squad.players]
-    return matches, leftovers
+    return matches, list(squads_tree)

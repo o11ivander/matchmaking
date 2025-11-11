@@ -21,6 +21,7 @@ from itertools import combinations
 from config import MATCH_PLAYERS
 from schema import Player
 
+from sortedcontainers import SortedList
 """
 Треба написати функцію для матч майкінгу з оптимізацією по:
  - мінімальній різниці між двома гравцями в матчі.
@@ -113,7 +114,7 @@ def split_match_to_teams(
 
 
 def form_raw_matches(
-    sorted_players: list[Player],
+    sorted_players: SortedList[Player],
 ):
     """
     Divide all players to raw matches - 12 players without teams. This done with optimize match stat(diff between min
@@ -169,7 +170,7 @@ def form_matches(
     if cnt_players < MATCH_PLAYERS:
         return [], []
 
-    sorted_players = sorted(players, key=lambda player: player.skill)
+    sorted_players = SortedList(players, key=lambda player: player.skill)
     matches, leftovers_players = form_raw_matches(sorted_players)
 
     matches_with_teams = [split_match_to_teams(match) for match in matches]
